@@ -34,7 +34,6 @@ void initialise_memory(){
 }
 
 int allocate(int size) {
-
 	/*
 	 * One word is used to store the actual size of the structure in the memory
 	 * Let this be the starting index of the block for simplicity
@@ -45,19 +44,28 @@ int allocate(int size) {
 
 	if(size > 511)	//Largest block that can be allocated is of size 512
 		return -1;
-	else if(size > 255){
-		if(heap[0] == -1){
+	else if(size > 255){	//if size is in the range 256 - 511, 512 block of memory has to allocated
+		if(heap[0] == -1){	//if 512 block is not free, abort
 			return -1;
 		}
-		heap[heap[0]] = size;
+		heap[heap[0]] = size;	//allocate 512 block of memory
 		start_addr = heap[0];
-		heap[0] = -1;
+		heap[0] = -1;			//remove it from 512 block freelist
 		return start_addr;
 	}
-	int index = 0, nearest_power = 512;
-	while((size + 1)/nearest_power == 0){	//while nearest_power is not the nearest power
-		index = 2*index + 1;	//Take index to starting index to next freelist
+	int index = 0, parent = 0, nearest_power = 512;
+	while(nearest_power >= 8 && (size + 1) < nearest_power){		//while nearest_power is not the nearest power and it is 8
+		parent = heap[index] != -1 ? index : parent;				//Updating the parent if a free block is available
+		index = 2*index + 1;										//Take index to starting index to next freelist
 		nearest_power /= 2;
+	}
+	nearest_power *= 2;
+	if(heap[index] == -1 && heap[parent] == -1){
+		//No free blocks available to accommodate the appropriate size
+		return -1;
+	}
+	if(heap[index] == -1){
+		
 	}
 }
 
