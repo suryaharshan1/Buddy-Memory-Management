@@ -2,8 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+//Create sufficiently large memory space to handle requests
 int heap[1024];
 
+/*
+ * @usage  : At the time of program initialisation 
+ * @param  : NULL
+ * @return : void 
+ */
 void initialise_memory(){
 	memset(heap, -1 , sizeof(heap));	//Filling all entries with -1 initially
 	
@@ -33,6 +39,12 @@ void initialise_memory(){
 	i = 2*i + 1;	//Starting index of next level i.e., block of size 128
 	heap[i] = 128;	//One 128 block and it's starting address is 128
 }
+
+/*
+ * @usage  : For allocation of memory 
+ * @param  : required size of memory block
+ * @return : starting address of the memory block created 
+ */
 
 int allocate(int size) {
 	/*
@@ -102,6 +114,13 @@ int allocate(int size) {
 	
 }
 
+
+/*
+ * @usage  : For deallocation of memory 
+ * @param  : starting address of the memory block to be deallocated
+ * @return : void
+ */
+ 
 void deallocate(int start_addr){
 	int size = heap[start_addr];
 	
@@ -158,6 +177,12 @@ void deallocate(int start_addr){
 	}				
 }
 
+/*
+ * @usage  : For printing the memory free list
+ * @param  : NULL
+ * @return : void
+ */
+ 
 void print_memory_freelist(){
 	int i = 0,size = 512, index = 1, temp = 0;
 	printf("*****	Freelist for blocks of size 512	*****\n");
@@ -177,6 +202,20 @@ void print_memory_freelist(){
 int main() {
 	initialise_memory();
 	print_memory_freelist();
-	
+	//Use allocate, deallocate, print_memory_freelist here
+	//Sample
+	/*
+	  int mem1 = allocate(60);
+	  if(mem1 == -1) {	
+	  	//@TODO handle allocation failure	
+	  }
+	  int mem2 = allocate(150);
+	  if(mem2 == -1) {	
+	  	//@TODO handle allocation failure	
+	  }
+	  //Use mem1,mem2 here
+	  dellocate(mem1);
+	  dellocate(mem2);
+	 */
 	return 0;
 }
