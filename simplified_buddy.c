@@ -18,7 +18,7 @@ void initialise_memory(){
 void print_memory_freelist(){
 	int i = 0,size = 512, index = 1, temp = 0;
 	printf("*****	Freelist for blocks of size 512	*****\n");
-	printf("0\t%d\n", heap[0]);
+	printf("%d\n", heap[0]);
 	for(i = 1; i < 127; i++){
 		if(i == index) {
 			temp = 0;
@@ -86,26 +86,6 @@ int get_free_block(int free_list,int list_size){
 	return temp1;
 }
 
-int split(int current_list,int list_size,int required_size){
-	int current_size = required_size, temp1, temp2,temp3;
-	while(heap[current_list] == -1 && current_list >= 0){
-		current_list = (current_list - 1)/2;
-		list_size = list_size / 2;
-		current_size = current_size*2;
-	}
-	if(current_list < 0){
-		return -1;
-	}
-	while(current_size != required_size){
-		temp1 = get_free_block(current_list,list_size);
-		add_to_list(2*current_list+1, temp1 + current_size/2);
-		add_to_list(2*current_list+1, temp1);
-		current_list = 2*current_list+1;
-		current_size = current_size/2;
-		list_size = list_size * 2;
-	}
-}
-
 int split_rec(int current_list, int list_size, int current_size, int required_size){
 	if(current_list < 0) {
 		return 0;
@@ -130,15 +110,13 @@ int allocate(int size){
 
 	int temp,ceil_size, req_free_list,req_free_list_size,start_addr;
 
-	//size rounded to a power of 2 
 	ceil_size = ceil2(size + 1);
 	req_free_list = get_free_list(ceil_size);
 	req_free_list_size = find_free_list_size(ceil_size);
 
 	if(heap[req_free_list] == -1){
-		//find parent and its size
-		temp = split_rec(req_free_list,req_free_list_size,ceil_size,ceil_size);
-		if(temp == -1){
+		temp = split_rec(req_free_list, req_free_list_size, ceil_size, ceil_size);
+		if(temp == 0){
 			return -1;
 		}		
 	}
@@ -219,8 +197,7 @@ int deallocate(int start_addr){
 
 int main(){
 	initialise_memory();
-	int temp;
-	temp = allocate(9);
+	int temp = allocate(510);
 	deallocate(temp);
 	print_memory_freelist();
 	return 0;
