@@ -26,7 +26,7 @@ void print_memory_freelist(){
 			index = 2 * index + 1;
 			printf("\n*****	Freelist for blocks of size %d 	*****\n", size);
 		}
-		printf("%d\t", heap[i]);
+		printf("%d\t ", heap[i]);
 		temp++;
 	}
 }
@@ -52,13 +52,12 @@ int find_free_list_size(int size){
 	return 1024/(2*size);
 }
 
-int add_list(int free_list,int addr){
+void add_list(int free_list,int addr){
 	int temp = free_list;
 	while(heap[temp] != -1){
 		temp++;
 	}
 	heap[temp] = addr;
-	return 1;
 }
 
 int remove_list(int free_list,int list_size){
@@ -73,8 +72,8 @@ int remove_list(int free_list,int list_size){
 }
 
 int split(int current_list,int list_size,int required_size){
-	int current_size = required_size, temp1, temp2;
-	while(heap[current_list] != -1 && current_list >= 0){
+	int current_size = required_size, temp1, temp2,temp3;
+	while(heap[current_list] == -1 && current_list >= 0){
 		current_list = (current_list - 1)/2;
 		list_size = list_size / 2;
 		current_size = current_size*2;
@@ -84,12 +83,28 @@ int split(int current_list,int list_size,int required_size){
 	}
 	while(current_size != required_size){
 		temp1 = remove_list(current_list,list_size);
-		temp2 = add_list(2*current_list+1, temp1 + current_size/2);
+		add_list(2*current_list+1, temp1 + current_size/2);
+		add_list(2*current_list+1, temp1);
 		current_list = 2*current_list+1;
 		current_size = current_size/2;
 		list_size = list_size * 2;
 	}
-	add_list(current_list,temp1);
+}
+
+int split_rec(int current_list, int list_size, int current_size, int required_size){
+	if(current_list < 0) {
+		return 0;
+	}
+	if(heap[current_list] == -1 && !split_rec((current_list - 1)/2, list_size / 2, current_size*2, required_size)) {
+		return 0;
+	}
+	if(required_size == current_size && heap[current_list] != -1) {
+		return 1;
+	}
+	int temp = remove_list(current_list,list_size);
+	add_list(2*current_list+1, temp + current_size/2);
+	add_list(2*current_list+1, temp);
+	return 1;
 }
 
 int allocate(int size){
@@ -106,15 +121,16 @@ int allocate(int size){
 	req_free_list_size = find_free_list_size(ceil_size);
 
 	if(heap[req_free_list] == -1){
+		printf("%d\n",req_free_list);
 		//find parent and its size
-		temp = split(req_free_list,req_free_list_size,ceil_size);
+		temp = split_rec(req_free_list,req_free_list_size,ceil_size,ceil_size);
 		if(temp == -1){
 			return -1;
 		}		
 	}
 
 	temp = req_free_list;
-	while(temp <= req_free_list + req_free_list_size && heap[temp] != -1){
+	while(temp < req_free_list + req_free_list_size && heap[temp] != -1){
 		temp = temp + 1;
 	}
 
@@ -144,5 +160,9 @@ int deallocate(int start_addr){
 
 int main(){
 	initialise_memory();
+	int temp;
+	temp = allocate(9);
+	print_memory_freelist();
+	printf("\n%d\n",temp);
 	return 0;
 }
