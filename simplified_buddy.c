@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int heap[1024];
-
-int parent_list, parent_size;
 
 void initialise_memory(){
 	memset(heap, -1 , sizeof(heap));	//Filling all entries with -1 initially
@@ -74,7 +73,7 @@ int remove_list(int free_list,int list_size){
 }
 
 int split(int current_list,int list_size,int required_size){
-	int current_size = required_size;
+	int current_size = required_size, temp1, temp2;
 	while(heap[current_list] != -1 && current_list >= 0){
 		current_list = (current_list - 1)/2;
 		list_size = list_size / 2;
@@ -84,8 +83,8 @@ int split(int current_list,int list_size,int required_size){
 		return -1;
 	}
 	while(current_size != required_size){
-		int temp1 = remove_list(current_list,list_size);
-		int temp2 = add_list(2*current_list+1, temp1 + current_size/2);
+		temp1 = remove_list(current_list,list_size);
+		temp2 = add_list(2*current_list+1, temp1 + current_size/2);
 		current_list = 2*current_list+1;
 		current_size = current_size/2;
 		list_size = list_size * 2;
@@ -114,7 +113,7 @@ int allocate(int size){
 		}		
 	}
 
-	int temp = req_free_list;
+	temp = req_free_list;
 	while(temp <= req_free_list + req_free_list_size && heap[temp] != -1){
 		temp = temp + 1;
 	}
